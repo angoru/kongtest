@@ -1,0 +1,141 @@
+pipeline {
+    agent any
+    environment {
+        PROJECT_NAME = "portall-admin"
+        COMMIT_ID = GIT_COMMIT.take(7)
+        // IMAGE_VERSION = "${env.TAG_NAME ? "v" + env.TAG_NAME : COMMIT_ID}"
+        // IMAGE_REGISTRY_URL = credentials('image-registry-url')
+        // IMAGE_REGISTRY = "$IMAGE_REGISTRY_URL/portall/studio:$IMAGE_VERSION"
+        // // SENTRY_AUTH_TOKEN = credentials('sentry-token')
+        // VERSION = "${env.TAG_NAME ? env.TAG_NAME : COMMIT_ID}"
+        // ENVIRONMENT = "${env.BRANCH_NAME == 'develop' ? 'develop' : (env.BRANCH_NAME == 'main' ? 'staging' : (env.TAG_NAME ? 'production' : 'none')) }"
+        // GITHUB_TOKEN = credentials('github-token')
+
+        GOOGLE_SERVICE_CREDENTIALS = credentials('google_service_credentials')
+        EMAIL_HOST = credentials("portall_dev_ses")
+        POSTGRES_PASSWORD = credentials("portall_dev_postgres_rds")
+        GOOGLE_MAPS_API_KEY = credentials("portall_dev_google_maps")
+        RABBITMQ_URL = credentials("portall_dev_rabbitmq_url")
+        MAPBOX_API_KEY = credentials("portall_dev_mapbox")
+        DJANGO_REPORTS_SALT = credentials("portall_dev_report_salt")
+        DJANGO_REPORTS_SECRET_KEY = credentials("portall_dev_report_secret_key")
+        DJANGO_SECRET_KEY = credentials("portall_dev_secret_key")
+        POSTGRES_PASSWORD_ETL_DATA = credentials("190f86b3-8ff0-41c6-add4-4dc7233fca2e")
+
+
+    }
+
+    stages {
+        // stage('Checkout') {
+        //     environment {
+        //         HOME = "${WORKSPACE}"
+        //     }
+
+        //     agent {
+        //         dockerfile {
+        //             filename 'Dockerfile.build'
+        //             dir '.'
+        //             args '-u root'
+        //         }
+
+        //     }
+
+        //     stages {
+        //         stage('Install packages') {
+        //              steps {
+        //                 sh "git config --global --add safe.directory ${HOME}"
+        //                 script {
+        //                     if (!env.TAG_NAME && sh(script: "git log -1 --pretty=%B | grep -F -ie '[skip ci]' -e '[ci skip]'", returnStatus: true) == 0) {
+        //                         currentBuild.result = 'NOT_BUILT'
+        //                         error 'Aborting because commit message contains [skip ci]'
+        //                     }
+        //                 }
+        //                 sh 'yarn install --ignore-scripts'
+        //             }
+        //         }
+
+        //         stage('Test') {
+        //              steps {
+        //                 sh 'yarn test:ci'
+        //             }
+        //         }
+
+        //         stage('Lint') {
+        //              steps {
+        //                 sh 'yarn lint'
+        //             }
+        //         }
+
+
+        //         stage('Build') {
+        //             when { anyOf { branch 'develop'; branch 'main' } }
+
+        //             environment {
+        //                 TSC_COMPILE_ON_ERROR = false
+        //                 REACT_APP_SENTRY_RELEASE = "${VERSION}"
+        //             }
+
+        //             steps {
+        //                 sh "yarn build:${ENVIRONMENT}"
+        //             }
+        //         }
+
+        //         stage('Tag release') {
+        //             when {
+        //                 branch 'main'
+        //             }
+
+        //             steps {
+        //                 sh "git config --global --add safe.directory ${HOME}"
+        //                 sh "yarn semantic-release"
+        //             }
+        //         }
+        //     }
+        // }
+
+        stage('Prepare to deploy') {
+            agent any
+            when { anyOf { branch 'multi'; } }
+            environment {
+
+                CLUSTER_DEV_URL = credentials('aws-cluster-arn-dev')
+                CLUSTER_PRE_URL = credentials('aws-cluster-arn-pre')
+                CLUSTER_PRO_URL = credentials('aws-cluster-arn-pro')
+            }
+
+            stages {
+
+                stage('Docker nginx') {
+                    steps {
+                        sh 'docker build -t $IMAGE_REGISTRY -f Dockerfile .'
+                        sh 'docker run $IMAGE_REGISTRY ls -alh /usr/share/nginx/html/static/js'
+                    }
+                }
+
+                stage('Docker image upload') {
+                    steps {
+                        sh 'aws --profile portall-dev ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $IMAGE_REGISTRY_URL'
+                        sh 'docker push $IMAGE_REGISTRY'
+                    }
+                }
+
+                stage('Deploy k8s') {
+                    steps {
+                        script {
+                            clusterName = '$CLUSTER_DEV_URL'
+
+                            if (ENVIRONMENT == 'staging') {
+                                clusterName = '$CLUSTER_PRE_URL'
+                            } else if (ENVIRONMENT == 'production') {
+                                clusterName = '$CLUSTER_PRO_URL'
+                            }
+                        }
+
+                        sh "kubectl config use-context ${clusterName}"
+                        sh "helm upgrade -i ${PROJECT_NAME} deploy -f ./deploy/values.yaml --set image.tag=${VERSION}"
+                    }
+                }
+            }
+        }
+    }
+}
