@@ -1,0 +1,320 @@
+_format_version: "1.1"
+consumers:
+- custom_id: "5"
+  keyauth_credentials:
+  - key: VKX0hKRbLGbIvC60m16CPUfTVyH6Fhn0
+  plugins:
+  - config:
+      day: 1
+      fault_tolerant: true
+      header_name: null
+      hide_client_headers: false
+      hour: 1
+      limit_by: consumer
+      minute: 1
+      month: 1
+      path: null
+      policy: redis
+      redis_database: 0
+      redis_host: redis-master
+      redis_password: null
+      redis_port: 6379
+      redis_server_name: null
+      redis_ssl: false
+      redis_ssl_verify: false
+      redis_timeout: 2000
+      second: 1
+      year: 1
+    enabled: true
+    name: rate-limiting
+    protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+    tags:
+    - rps
+  username: asdsaads
+- custom_id: "4"
+  keyauth_credentials:
+  - key: FO6Lb1PIZU54Sf7Z0mxxPkIzfCfr4Tx9
+  - key: 7VZ9cDWWSsCHKarC39Rc7BfV4XndbIg8
+  - key: ehXPiSlBthuIZK5VfaiJaS5p4fmsDgoX
+  - key: B3sG1fR4BhSJOlbT7cRN5sN8pSMt3nLr
+  - key: L3hpldhti9ui16Bp3JEOYpNLhvUTkDIT
+  - key: CkY8xRndjDC33A6llIa8UZ6ijqYY3xHp
+  - key: ffboAKipQw1M14srvSTJicmictPV7hEx
+  - key: oX5PnopNXCMUBfV55HOTKa3d797ab6y6
+  - key: Hr9FIOOABlZwPl2vzcQMzw5ecF1BrZfb
+  - key: t3RYP7Avevh660ZEpOzEw7S21bczVirl
+  plugins:
+  - config:
+      day: null
+      fault_tolerant: true
+      header_name: null
+      hide_client_headers: false
+      hour: null
+      limit_by: consumer
+      minute: null
+      month: null
+      path: null
+      policy: redis
+      redis_database: 0
+      redis_host: redis-master
+      redis_password: null
+      redis_port: 6379
+      redis_server_name: null
+      redis_ssl: false
+      redis_ssl_verify: false
+      redis_timeout: 2000
+      second: 1000
+      year: null
+    enabled: true
+    name: rate-limiting
+    protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+    tags:
+    - rps
+  username: company3
+- custom_id: "1"
+  plugins:
+  - config:
+      day: 1
+      fault_tolerant: true
+      header_name: null
+      hide_client_headers: false
+      hour: 1
+      limit_by: consumer
+      minute: 1
+      month: 1
+      path: null
+      policy: redis
+      redis_database: 0
+      redis_host: redis-master
+      redis_password: null
+      redis_port: 6379
+      redis_server_name: null
+      redis_ssl: false
+      redis_ssl_verify: false
+      redis_timeout: 2000
+      second: 1
+      year: 1
+    enabled: true
+    name: rate-limiting
+    protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+    tags:
+    - rps
+  username: test_company
+- custom_id: "3"
+  plugins:
+  - config:
+      day: 1
+      fault_tolerant: true
+      header_name: null
+      hide_client_headers: false
+      hour: 1
+      limit_by: consumer
+      minute: 1
+      month: 1
+      path: null
+      policy: redis
+      redis_database: 0
+      redis_host: redis-master
+      redis_password: null
+      redis_port: 6379
+      redis_server_name: null
+      redis_ssl: false
+      redis_ssl_verify: false
+      redis_timeout: 2000
+      second: 1
+      year: 1
+    enabled: true
+    name: rate-limiting
+    protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+    tags:
+    - rps
+  username: test_company_1
+plugins:
+- config:
+    credentials: false
+    exposed_headers: null
+    headers: null
+    max_age: null
+    methods:
+    - GET
+    - HEAD
+    - PUT
+    - PATCH
+    - POST
+    - DELETE
+    - OPTIONS
+    - TRACE
+    - CONNECT
+    origins:
+    - '*'
+    preflight_continue: false
+  enabled: true
+  name: cors
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: api_fastapi
+  service: portall_api
+- config:
+    anonymous: null
+    hide_credentials: false
+    key_in_body: false
+    key_in_header: true
+    key_in_query: true
+    key_names:
+    - apikey
+    run_on_preflight: true
+  enabled: true
+  name: key-auth
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: api_Django
+  service: portall_admin
+- config:
+    anonymous: null
+    hide_credentials: false
+    key_in_body: false
+    key_in_header: true
+    key_in_query: true
+    key_names:
+    - apikey
+    run_on_preflight: true
+  enabled: true
+  name: key-auth
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: portall_routes
+  service: portall_api
+services:
+- connect_timeout: 6000
+  enabled: true
+  host: ooh-front.portall
+  name: ooh-front
+  port: 8000
+  protocol: http
+  read_timeout: 6000
+  retries: 5
+  write_timeout: 6000
+- connect_timeout: 6000
+  enabled: false
+  host: ooh-api.portall
+  name: ooh_api
+  port: 8000
+  protocol: http
+  read_timeout: 6000
+  retries: 5
+  write_timeout: 6000
+- connect_timeout: 6000
+  enabled: true
+  host: admin.portall
+  name: portall_admin
+  port: 8000
+  protocol: http
+  read_timeout: 6000
+  retries: 5
+  routes:
+  - hosts:
+    - api.portall.inspide.local
+    https_redirect_status_code: 426
+    name: api_Django
+    path_handling: v0
+    paths:
+    - /v1/metadata
+    - /v1/data
+    - /v1/notebooks
+    - /v1/user/me
+    preserve_host: true
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  - hosts:
+    - api.portall.inspide.local
+    https_redirect_status_code: 426
+    name: api_login
+    path_handling: v0
+    paths:
+    - /v1/user/login
+    - /v1/user/resend_password
+    - /v1/user/reset_password
+    preserve_host: true
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  - hosts:
+    - admin.portall.inspide.local
+    https_redirect_status_code: 426
+    name: portall_routes
+    path_handling: v0
+    paths:
+    - /admin
+    - /static
+    - /media
+    - /account
+    - /billing
+    - /accounts
+    preserve_host: true
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 6000
+- connect_timeout: 6000
+  enabled: true
+  host: api-v1.portall
+  name: portall_api
+  port: 8000
+  protocol: http
+  read_timeout: 6000
+  retries: 5
+  routes:
+  - hosts:
+    - api2.portall.inspide.local
+    https_redirect_status_code: 426
+    name: api_fastapi
+    path_handling: v0
+    paths:
+    - /
+    preserve_host: true
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 6000
