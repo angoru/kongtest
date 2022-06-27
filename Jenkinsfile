@@ -10,7 +10,9 @@ pipeline {
                 sh 'docker run --rm --env DECK_KONG_ADDR=http://10.152.183.31:8001  kong/deck:latest dump -o - > kong.2.yaml'                
                 sh 'git add .'
                 sh 'git commit -a -m "new kong dump"'
-                sh 'git push https://github.com/angoru/kongtest.git HEAD:main'
+                withCredentials([string(credentialsId: 'git_kong', variable: 'TOKEN')]) {
+                    sh 'git push https://${TOKEN}/github.com/angoru/kongtest.git HEAD:main'
+                }
             }
         }
     }
