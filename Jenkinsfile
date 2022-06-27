@@ -6,8 +6,8 @@ pipeline {
             steps {
                 // Get some code from a GitHub repository
                 sh 'ls -la'
-                sh 'docker pull kong/deck'
-                sh 'docker run --rm --env DECK_KONG_ADDR=http://10.152.183.31:8001  kong/deck:latest -s ./kong.yaml sync'
+                sh 'docker build -t localdeck:v1 .'
+                sh 'docker run --rm --env DECK_KONG_ADDR=http://10.152.183.31:8001  klocaldeck:v1 sync'
                 sh 'git add .'
                 sh 'git commit -a -m "new kong dump"'
                 withCredentials([string(credentialsId: 'git_kong', variable: 'TOKEN')]) {
