@@ -227,7 +227,7 @@ services:
   protocol: http
   read_timeout: 6000
   retries: 5
-  write_timeout: 6000
+  write_timeout: 5000
 - connect_timeout: 6000
   enabled: true
   host: admin.portall
