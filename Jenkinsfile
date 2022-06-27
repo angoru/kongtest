@@ -1,19 +1,26 @@
 pipeline {
     agent any
     stages {
-        stage('sync deck') {
+        stage('sync') {
             agent {
                 dockerfile {
                     filename 'Dockerfile'
                     dir '.'
-                    // args '-u root'
+                    args '-u root'
                 }
             }
-            steps {
-                // Get some code from a GitHub repository
-                sh 'ls -la'
-                sh 'deck sync'
+
+            stages {
+                stage('deck ') {
+                    steps {
+                        // Get some code from a GitHub repository
+                        sh 'ls -la'
+                        sh 'deck sync'
+                    }
+                }
             }
+
+
         }
         stage('push changes') {
             agent any
