@@ -14,12 +14,9 @@ pipeline {
                 stage('deck ') {
                     steps {
                         // Get some code from a GitHub repository
-                        sh 'ls -la'
-                        sh 'deck sync'
                     }
                 }
             }
-
 
         }
         stage('push changes') {
